@@ -92,7 +92,7 @@ void solve_max(ArgParser &ap, std::istream &is, std::ostream &,
 }
 
 template<class Value, class LargeValue>
-void solve_min(ArgParser &ap, std::istream &is, std::ostream &,
+void solve_min(ArgParser &ap, std::istream &is, std::ostream &os,
                Value infty, DimacsDescriptor &desc)
 {
   bool report = !ap.given("q");
@@ -109,13 +109,13 @@ void solve_min(ArgParser &ap, std::istream &is, std::ostream &,
     sum_sup += sup[n];
   }
   if (report) {
-    std::cerr << "Sum of supply values: " << sum_sup << "\n";
-    if (sum_sup <= 0)
+    std::/*cerr*/cout << "c Sum of supply values: " << sum_sup << "\n";
+  /*  if (sum_sup <= 0)
       std::cerr << "GEQ supply contraints are used for NetworkSimplex\n\n";
     else
-      std::cerr << "LEQ supply contraints are used for NetworkSimplex\n\n";
+      std::cerr << "LEQ supply contraints are used for NetworkSimplex\n\n"; */
   }
-  if (report) std::cerr << "Read the file: " << ti << '\n';
+  if (report) std::/*cerr*/cout << "c Read the file: " << ti << '\n';
 
   typedef NetworkSimplex<Digraph, Value> MCF;
   ti.restart();
@@ -125,12 +125,31 @@ void solve_min(ArgParser &ap, std::istream &is, std::ostream &,
   if (report) std::cerr << "Setup NetworkSimplex class: " << ti << '\n';
   ti.restart();
   typename MCF::ProblemType res = ns.run();
+  writeDimacsMin_ns(os , g, ns);
+
+/* // Cost Scaling
+  typedef CostScaling<Digraph> MCF;
+  ti.restart();
+  MCF cs(g);
+  cs.lowerMap(lower).upperMap(cap).costMap(cost).supplyMap(sup);
+  if (report) std::cout << "c Setup CostScaling class: " << ti << '\n';
+  ti.restart();
+  typename MCF::ProblemType res = cs.run();
+  writeDimacsMin_cs(os , g, cs);
+*/
   if (report) {
-    std::cerr << "Run NetworkSimplex: " << ti << "\n\n";
-    std::cerr << "Feasible flow: " << (res == MCF::OPTIMAL ? "found" :
+    std::/*cerr*/cout << "c Run NetworkSimplex: " << ti << "\nc \n";
+    //std::/*cerr*/cout << "c Run CostScaling: " << ti << "\nc \n";
+    std::/*cerr*/cout << "c Feasible flow: " << (res == MCF::OPTIMAL ? "found" :
                                        "not found") << '\n';
-    if (res) std::cerr << "Min flow cost: "
+
+    if (res) std::/*cerr*/cout << "c Min flow cost: "
                        << ns.template totalCost<LargeValue>() << '\n';
+
+/* // Cost Scaling
+if (res) std::cout << "c Min flow cost: "
+                   << cs.template totalCost<LargeValue>() << '\n';
+*/
   }
 }
 
