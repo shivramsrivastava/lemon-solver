@@ -443,6 +443,48 @@ namespace lemon {
 
   /// @}
 
+ // write dimacs min for network simplex algorithm
+  template<typename Digraph, typename NetworkSimplex>
+  void writeDimacsMin_ns(std::ostream& os, const Digraph &g,
+                      const NetworkSimplex &ns) {
+    typedef typename Digraph::NodeIt NodeIt;
+    typedef typename Digraph::ArcIt ArcIt;
+
+    os << "c p min " << g.nodeNum() << " " << g.arcNum() << std::endl;
+
+    typename Digraph::template NodeMap<int> nodes(g);
+    int i = 1;
+    for(NodeIt v(g); v != INVALID; ++v) {
+      nodes.set(v, i);
+      ++i;
+    }
+    for(ArcIt e(g); e != INVALID; ++e) {
+        os << "f " << (g.id(g.source(e)) + 1)  << " " << (g.id(g.target(e)) + 1)
+         << " " << ns.flow(e) << std::endl;
+    }
+  }
+
+  // write dimacs min for cost scaling algorithm
+  template<typename Digraph, typename CostScaling>
+  void writeDimacsMin_cs(std::ostream& os, const Digraph &g,
+                      const CostScaling &cs) {
+    typedef typename Digraph::NodeIt NodeIt;
+    typedef typename Digraph::ArcIt ArcIt;
+
+    os << "c p min " << g.nodeNum() << " " << g.arcNum() << std::endl << "c " << std::endl;
+
+    typename Digraph::template NodeMap<int> nodes(g);
+    int i = 1;
+    for(NodeIt v(g); v != INVALID; ++v) {
+      nodes.set(v, i);
+      ++i;
+    }
+    for(ArcIt e(g); e != INVALID; ++e) {
+      os << "f " << (g.id(g.source(e)) + 1)  << " " << (g.id(g.target(e)) + 1)
+         << " " << cs.flow(e) << std::endl;
+    }
+  }
+
 } //namespace lemon
 
 #endif //LEMON_DIMACS_H
